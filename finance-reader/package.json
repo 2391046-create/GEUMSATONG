@@ -1,0 +1,23 @@
+{
+  "name": "finance-reader",
+  "version": "1.0.0",
+  "description": "난이도 맞춤형 금융 기사 리더 - 용어 설명, 인과관계 흐름도, DART 연동 시각화",
+  "main": "server.js",
+  "type": "commonjs",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node --watch server.js"
+  },
+  "dependencies": {
+    "@mozilla/readability": "^0.5.0",
+    "adm-zip": "^0.5.10",
+    "axios": "^1.7.2",
+    "bcryptjs": "^2.4.3",
+    "cheerio": "^1.0.0",
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.5",
+    "express": "^4.19.2",
+    "jsdom": "^24.1.0",
+    "xml2js": "^0.6.2"
+  }
+}

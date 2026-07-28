@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>금사통 · 금융 기사 통역가</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+KR:wght@500;700&family=IBM+Plex+Mono:wght@500;600&display=swap" rel="stylesheet">
+<link href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css" rel="stylesheet">
+<link rel="stylesheet" href="/style.css" />
+</head>
+<body>
+
+<!-- ================= 로그인 / 회원가입 ================= -->
+<section id="view-auth" class="onboard-wrap">
+  <div class="onboard-left">
+    <div class="onboard-left-top">
+      <h1 class="ob-headline">어려운 금융뉴스,<br />이제 나만의 금융 기사<br />통역가로 쉽게 이해하세요.</h1>
+      <ul class="ob-bullets">
+        <li>URL만 넣으면 자동으로 어려운 용어 해설</li>
+        <li>나만의 금융 어휘력 레벨 트래킹</li>
+        <li>가입자 전체 기준 실제 전국 순위</li>
+      </ul>
+    </div>
+  </div>
+  <div class="onboard-right">
+    <div class="ob-card" style="max-width:420px; margin:120px auto;">
+      <div class="auth-tabs">
+        <button type="button" class="auth-tab active" id="auth-tab-login">로그인</button>
+        <button type="button" class="auth-tab" id="auth-tab-signup">회원가입</button>
+      </div>
+      <form id="auth-form">
+        <div class="auth-field">
+          <label>아이디</label>
+          <input type="text" id="auth-username" autocomplete="username" placeholder="영문 소문자/숫자/밑줄" required />
+        </div>
+        <div class="auth-field" id="auth-displayname-field" hidden>
+          <label>닉네임</label>
+          <input type="text" id="auth-displayname" placeholder="순위/마이페이지에 표시될 이름" />
+        </div>
+        <div class="auth-field">
+          <label>비밀번호</label>
+          <input type="password" id="auth-password" autocomplete="current-password" placeholder="4자 이상" required />
+        </div>
+        <p class="form-hint" id="auth-hint"></p>
+        <button type="submit" class="cta-btn" id="auth-submit" style="width:100%; justify-content:center;">로그인 →</button>
+      </form>
+    </div>
+  </div>
+</section>
+
+<section id="view-level" class="onboard-wrap">
+  <div class="onboard-left">
+    <div class="onboard-left-top">
+      <h1 class="ob-headline">어려운 금융뉴스,<br />이제 나만의 금융 기사<br />통역가로 쉽게 이해하세요.</h1>
+      <ul class="ob-bullets">
+        <li>URL만 넣으면 자동으로 어려운 용어 해설</li>
+        <li>나만의 금융 어휘력 레벨 트래킹</li>
+        <li>매일 추천 금융 기사로 학습 습관 형성</li>
+      </ul>
+    </div>
+    <div class="ob-testimonial">
+      <div class="ob-testimonial-tag">10명 중 8명이 4주 안에 금융 어휘력 상위 10%에 진입했어요.</div>
+      <div class="ob-testimonial-sub">자세히 보기</div>
+    </div>
+  </div>
+
+  <div class="onboard-right">
+    <p class="ob-login-link">이미 계정이 있으신가요? <b id="ob-login">로그인</b></p>
+
+    <div class="ob-card">
+      <div class="step-head"><span class="step-num">1</span><h2>금융 이해 수준</h2></div>
+      <p class="step-sub">평소 금융기사를 어떻게 읽고 계신가요?</p>
+      <div class="radio-list" id="habit-list">
+        <label class="radio-card" data-level="beginner">
+          <span class="radio-text">초급 ㅣ 금융기사를 거의 읽지 않아요</span>
+          <input type="radio" name="habit" />
+          <span class="radio-dot"></span>
+        </label>
+        <label class="radio-card" data-level="intermediate">
+          <span class="radio-text">중급 ㅣ 기사는 읽지만 용어가 어려워요</span>
+          <input type="radio" name="habit" />
+          <span class="radio-dot"></span>
+        </label>
+        <label class="radio-card" data-level="advanced">
+          <span class="radio-text">고급 ㅣ 기사 속 기업의 재무지표와 공시도 함께 확인해요</span>
+          <input type="radio" name="habit" />
+          <span class="radio-dot"></span>
+        </label>
+      </div>
+    </div>
+
+    <div class="ob-card">
+      <div class="step-head"><span class="step-num">2</span><h2>관심 분야</h2></div>
+      <p class="step-sub">관심 있는 분야를 모두 골라주세요.</p>
+      <div class="tag-grid" id="interest-tags">
+        <button type="button" class="tag-pill" data-tag="주식·ETF">주식·ETF</button>
+        <button type="button" class="tag-pill" data-tag="금리·대출">금리·대출</button>
+        <button type="button" class="tag-pill" data-tag="예·적금">예·적금</button>
+        <button type="button" class="tag-pill" data-tag="환율·해외여행">환율·해외여행</button>
+        <button type="button" class="tag-pill" data-tag="부동산">부동산</button>
+        <button type="button" class="tag-pill" data-tag="기업실적">기업실적</button>
+        <button type="button" class="tag-pill more-hidden" data-tag="연금" hidden>연금</button>
+        <button type="button" class="tag-pill more-hidden" data-tag="세금" hidden>세금</button>
+        <button type="button" class="tag-more-btn" id="tag-more-btn">더보기</button>
+      </div>
+    </div>
+
+    <div class="onboard-actions">
+      <button class="cta-btn" id="onboard-submit" disabled>시작하기 ▶</button>
+    </div>
+  </div>
+</section>
+
+<!-- ================= 로그인 화면 (별칭 없는 로컬 앱이라 단순 확인용) ================= -->
+<div id="modal-backdrop" class="modal-backdrop" hidden>
+  <div class="modal">
+    <button class="modal-close" id="modal-close">✕</button>
+    <h2 class="modal-title" id="modal-title"></h2>
+    <div class="modal-body" id="modal-body"></div>
+  </div>
+</div>
+
+<!-- ================= 공통 상단바 (온보딩 제외 모든 페이지) ================= -->
+<header class="topbar" id="app-topbar" hidden>
+  <div class="topbar-left">
+    <button class="back-btn" id="topbar-back" title="뒤로가기">← 뒤로</button>
+    <div class="brand">금사통<span class="brand-sub">금융 기사 통역가</span></div>
+  </div>
+  <div class="avatar-wrap">
+    <button class="avatar-btn" id="avatar-btn">–</button>
+    <div class="avatar-menu" id="avatar-menu" hidden>
+      <div class="avatar-menu-user" id="avatar-menu-user"></div>
+      <button data-nav="home">홈</button>
+      <button data-nav="mypage">마이페이지</button>
+      <button data-nav="dashboard">내 학습현황</button>
+      <hr />
+      <button data-nav="level">난이도 다시 설정</button>
+      <button data-nav="logout">로그아웃</button>
+    </div>
+  </div>
+</header>
+
+<!-- ================= 홈 ================= -->
+<section id="view-home" class="page">
+  <h1 class="headline center">오늘 읽은 금융기사,<br />이해하기 어려웠나요?</h1>
+
+  <form id="url-form" class="url-form">
+    <input id="url-input" type="url" placeholder="URL을 붙여 넣어주세요" required />
+    <button type="submit">기사 해석하기</button>
+  </form>
+  <button type="button" class="text-link-btn" id="toggle-paste">기사 본문 직접 붙여넣기</button>
+  <div id="paste-box" class="paste-box" hidden>
+    <textarea id="paste-textarea" placeholder="기사 본문을 여기에 붙여넣으세요"></textarea>
+    <button type="button" id="paste-submit" class="cta-btn-sm">본문으로 해석하기</button>
+  </div>
+  <p class="form-hint" id="url-hint"></p>
+
+  <div class="home-grid">
+    <div class="home-col-main">
+      <div class="section-label-row">
+        <span class="section-label">오늘의 핫 뉴스</span>
+        <button class="ghost-btn" id="refresh-recommend">다시 분석</button>
+      </div>
+      <div id="hero-area"><p class="skeleton">불러오는 중…</p></div>
+      <p class="rec-label">추천 기사</p>
+      <div id="secondary-area"></div>
+    </div>
+    <div class="home-col-side">
+      <span class="section-label">나의 금융 이해도</span>
+      <div class="literacy-panel" id="literacy-panel" style="margin-top:14px"><p class="skeleton">불러오는 중…</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= 마이페이지 ================= -->
+<section id="view-mypage" class="page">
+  <h1 class="headline">마이페이지</h1>
+  <div class="page-grid">
+    <div class="profile-card" id="mypage-profile"><p class="skeleton">불러오는 중…</p></div>
+    <div>
+      <p class="section-title">저장한 기사</p>
+      <div class="filter-pills" id="saved-filters"></div>
+      <div class="saved-grid" id="saved-grid"><p class="skeleton">불러오는 중…</p></div>
+
+      <p class="section-title">최근 조회한 금융 상품</p>
+      <div class="product-grid" id="mypage-products"><p class="skeleton">불러오는 중…</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= 내 학습현황 ================= -->
+<section id="view-dashboard" class="page">
+  <h1 class="headline">내 학습현황</h1>
+  <div class="page-grid">
+    <div class="profile-card" id="dash-profile"><p class="skeleton">불러오는 중…</p></div>
+    <div>
+      <div class="dash-top3" id="dash-top3"></div>
+      <div class="dash-row">
+        <div class="dashboard-card">
+          <p class="section-title">금융 이해도 측정 결과</p>
+          <div id="score-chart"><p class="skeleton">불러오는 중…</p></div>
+        </div>
+        <div class="dashboard-card">
+          <p class="section-title">어휘 학습 현황 (카테고리별 분포)</p>
+          <div id="vocab-bars"></div>
+        </div>
+        <div class="dashboard-card">
+          <p class="section-title">최근 학습한 용어</p>
+          <div class="term-tag-list" id="recent-term-tags"></div>
+        </div>
+        <div class="dashboard-card" style="grid-column: 1 / -1;">
+          <p class="section-title">전국 순위 <span style="font-weight:400; color:var(--slate); font-size:11.5px;">(실제 가입자 기준)</span></p>
+          <div id="leaderboard-box"><p class="skeleton">불러오는 중…</p></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= 기사 리더 ================= -->
+<section id="view-article" class="page">
+  <button class="back-link" id="back-to-home">← 홈</button>
+  <div class="article-head-row">
+    <div>
+      <p class="eyebrow" id="article-category">카테고리</p>
+      <h1 class="headline" id="article-title">기사 제목</h1>
+    </div>
+    <div class="article-head-actions">
+      <button class="icon-btn" id="btn-save">☆ 저장</button>
+      <button class="icon-btn" id="btn-original">↗ 원문 보기</button>
+    </div>
+  </div>
+  <p class="article-source-row" id="article-meta"></p>
+  <img id="article-image" class="article-image" alt="" hidden />
+
+  <div class="article-layout">
+    <article class="article-body" id="article-text"></article>
+
+    <aside class="interpreter-panel">
+      <div class="interpreter-empty" id="interpreter-empty">본문에서 밑줄 친 단어를 클릭하면<br />여기에 뜻풀이가 나와요.</div>
+      <div class="interpreter-active" id="interpreter-active" hidden>
+        <div class="interpreter-eyebrow">스마트 통역가</div>
+        <div class="interpreter-term" id="interpreter-term"></div>
+        <div class="level-tabs" id="interpreter-tabs">
+          <button class="level-tab" data-level="beginner">초급</button>
+          <button class="level-tab" data-level="intermediate">중급</button>
+          <button class="level-tab" data-level="advanced">고급</button>
+        </div>
+        <div class="interpreter-explain" id="interpreter-explain"></div>
+        <button class="understood-btn" id="understood-btn">✓ 이해했어요</button>
+      </div>
+      <div class="interpreter-list" id="interpreter-list"></div>
+    </aside>
+  </div>
+
+  <div class="article-toolbar">
+    <button class="tool-btn" id="btn-flow">📈 기사 흐름 보기</button>
+    <div class="dart-buttons" id="dart-buttons"></div>
+  </div>
+
+  <div class="product-section bank-products" id="product-section" hidden></div>
+
+  <div id="tooltip" class="ledger-tooltip" hidden>
+    <div class="tooltip-term" id="tooltip-term"></div>
+    <div class="tooltip-explain" id="tooltip-explain"></div>
+  </div>
+</section>
+
+<div class="loading-overlay" id="loading-overlay" hidden>
+  <div class="loading-box">
+    <div class="spinner"></div>
+    <p id="loading-text">분석 중…</p>
+  </div>
+</div>
+
+<script src="/app.js"></script>
+</body>
+</html>
