@@ -21,7 +21,7 @@ Ontology/
 
 ---
 
-##**⚙️ 환경 구성 및 기술 스택 (Tech Stack)**
+## ⚙️ **환경 구성 및 기술 스택 (Tech Stack)**
 
 1. **Core Framework**: Microsoft GraphRAG
 
@@ -34,7 +34,7 @@ Ontology/
 powershell -ExecutionPolicy ByPass -c "irm [https://astral.sh/uv/install.ps1](https://astral.sh/uv/install.ps1) | iex"
 ```
 
-##**🚀 실행 가이드 (Execution Workflow)**
+## 🚀 **실행 가이드 (Execution Workflow)**
 
 **1. GraphRAG 인덱싱 및 쿼리**
 
@@ -57,7 +57,7 @@ uvx --python 3.12 --with "litellm<1.92" graphrag query --root . --method global 
 uv run --with pandas --with pyarrow python check_result.py
 ```
 
-##**📊 시각화 (Visualization Guide)**
+## 📊 **시각화 (Visualization Guide)**
 
 추출된 지식 그래프를 3가지 형태로 시각화하여 분석할 수 있습니다.
 
