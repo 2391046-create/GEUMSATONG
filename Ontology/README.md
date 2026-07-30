@@ -6,7 +6,6 @@
 
 ## 📁 프로젝트 구조 (Directory Structure)
 
-```
 Ontology/
 ├── input/                  # 원본 금융 텍스트 데이터 (.txt)
 ├── prompts/                # GraphRAG 추출 규칙 및 프롬프트 정의
@@ -17,6 +16,8 @@ Ontology/
 ├── export_graphml.py      # Gephi / Neo4j 용 GraphML 포맷 데이터 수출 스크립트
 ├── settings.yaml           # GraphRAG 파이프라인 및 LLM 설정 파일
 └── README.md               # 프로젝트 매뉴얼
+
+---
 
 ⚙️ 환경 구성 및 기술 스택 (Tech Stack)
 
