@@ -16,7 +16,8 @@ Ontology/
 ├── visualize_png.py        # NetworkX/Matplotlib 기반 정적 고화질 PNG 이미지 생성
 ├── export_graphml.py       # Gephi / Neo4j 용 GraphML 포맷 데이터 수출 스크립트
 ├── settings.yaml           # GraphRAG 파이프라인 및 LLM 설정 파일
-└── README.md               # 프로젝트 매뉴얼 ```
+└── README.md               # 프로젝트 매뉴얼
+```
 
 ---
 
