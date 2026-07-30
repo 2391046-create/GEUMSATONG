@@ -1,0 +1,6 @@
+.env
+cache/
+output/
+logs/
+__pycache__/
+test.json

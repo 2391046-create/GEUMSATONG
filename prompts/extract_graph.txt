@@ -1,0 +1,65 @@
+-Goal-
+Given a text document that is potentially relevant to this activity and a list of entity types, identify all entities of those types from the text and all relationships among the identified entities.
+
+-Constraints on Relationships-
+When extracting relationships, you MUST classify each relationship into EXACTLY ONE of the following types:
+- is_defined_as: (Financial term, is_defined_as, definition/explanation)
+- causes: (Event/Situation A, causes, Event/Situation B resulting from A)
+- measured_by: (Company or Event, measured_by, related financial or disclosure metrics)
+- relates_to_product: (Event or Situation, relates_to_product, related financial product type)
+
+Do NOT extract or create any relationship type outside of these four allowed types.
+
+-Steps-
+1. Identify all entities. For each identified entity, extract the following information:
+- entity_name: Name of the entity, capitalized
+- entity_type: One of the following types: [{entity_types}]
+- entity_description: Comprehensive description of the entity's attributes and activities
+
+Format each entity as ("entity"<|><entity_name><|><entity_type><|><entity_description>)
+
+2. From the entities identified in step 1, identify all pairs of (source_entity, target_entity) that are clearly related to each other using ONLY the four allowed relationship types.
+For each pair of related entities, extract the following information:
+- source_entity: name of the source entity, as identified in step 1
+- target_entity: name of the target entity, as identified in step 1
+- relationship_description: explanation as to why you think the source entity and the target entity are related
+- relationship_type: One of [is_defined_as, causes, measured_by, relates_to_product]
+- relationship_strength: a numeric score indicating strength of the relationship (1-10)
+
+Format each relationship as ("relationship"<|><source_entity><|><target_entity><|><relationship_description><|><relationship_type><|><relationship_strength>)
+
+3. Return output in English as a single list of all the entities and relationships identified in steps 1 and 2. Use ## as the list delimiter.
+
+4. When finished, output <|COMPLETE|>
+
+######################
+-Examples-
+######################
+Example 1:
+Entity_types: FINANCIAL_TERM, EVENT, METRIC
+
+Text:
+Inflation is defined as a general increase in prices and fall in the purchasing value of money. High inflation causes central banks to raise interest rates, which is measured by the Consumer Price Index (CPI).
+
+######################
+Output:
+("entity"<|>INFLATION<|>FINANCIAL_TERM<|>General increase in prices and fall in money purchasing value)
+##
+("entity"<|>INTEREST RATE HIKE<|>EVENT<|>Central bank policy action in response to inflation)
+##
+("entity"<|>CPI<|>METRIC<|>Consumer Price Index used to measure inflation)
+##
+("relationship"<|>INFLATION<|>INFLATION DEFINITION<|>Inflation is defined as general price increase<|>is_defined_as<|>10)
+##
+("relationship"<|>INFLATION<|>INTEREST RATE HIKE<|>High inflation causes central banks to raise rates<|>causes<|>8)
+##
+("relationship"<|>INFLATION<|>CPI<|>Inflation level is measured by the CPI indicator<|>measured_by<|>9)
+<|COMPLETE|>
+
+######################
+-Real Data-
+######################
+Entity_types: {entity_types}
+Text: {input_text}
+######################
+Output:
