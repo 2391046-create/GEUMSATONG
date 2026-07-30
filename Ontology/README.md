@@ -1,10 +1,10 @@
-## Financial Knowledge Graph Construction (GraphRAG & Ontology)
+# **Financial Knowledge Graph Construction (GraphRAG & Ontology)**
 
 금융 기사를 바탕으로 엔티티(Entity) 및 관계(Relationship)를 추출하고, 이를 기반으로 지식 그래프(Knowledge Graph) 구축 및 시각화를 수행하는 파이프라인입니다.
 
 ---
 
-## 📁 프로젝트 구조 (Directory Structure)
+## 📁 **프로젝트 구조 (Directory Structure)**
 
 ```text
 Ontology/
@@ -21,22 +21,22 @@ Ontology/
 
 ---
 
-⚙️ 환경 구성 및 기술 스택 (Tech Stack)
+##**⚙️ 환경 구성 및 기술 스택 (Tech Stack)**
 
-1. Core Framework: Microsoft GraphRAG
+1. **Core Framework**: Microsoft GraphRAG
 
-2. Language & Package Manager: Python 3.12, uv
+2. **Language & Package Manager**: Python 3.12, uv
 
-3. Visualization: PyVis, NetworkX, Matplotlib, Gephi (GraphML)
+3. **Visualization**: PyVis, NetworkX, Matplotlib, Gephi (GraphML)
 
 ```
 # uv 설치 (Windows PowerShell 기준)
 powershell -ExecutionPolicy ByPass -c "irm [https://astral.sh/uv/install.ps1](https://astral.sh/uv/install.ps1) | iex"
 ```
 
-🚀 실행 가이드 (Execution Workflow)
+##**🚀 실행 가이드 (Execution Workflow)**
 
-1. GraphRAG 인덱싱 및 쿼리
+**1. GraphRAG 인덱싱 및 쿼리**
 
 문서 기반 지식 그래프 인덱스를 생성하고 질의응답을 수행합니다.
 
@@ -50,14 +50,14 @@ uvx --python 3.12 --with "litellm<1.92" graphrag query --root . --method local -
 uvx --python 3.12 --with "litellm<1.92" graphrag query --root . --method global --query "이 문서에서 다루는 주요 이슈를 요약해줘."
 ```
 
-2. 추출 데이터 결과 확인
+**2. 추출 데이터 결과 확인**
 
 추출된 entities.parquet 및 relationships.parquet 데이터의 상위 항목을 터미널에서 빠르게 조회가 가능합니다.
 ```
 uv run --with pandas --with pyarrow python check_result.py
 ```
 
-📊 시각화 (Visualization Guide)
+##**📊 시각화 (Visualization Guide)**
 
 추출된 지식 그래프를 3가지 형태로 시각화하여 분석할 수 있습니다.
 
