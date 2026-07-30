@@ -6,6 +6,7 @@
 
 ## 📁 프로젝트 구조 (Directory Structure)
 
+```text
 Ontology/
 ├── input/                  # 원본 금융 텍스트 데이터 (.txt)
 ├── prompts/                # GraphRAG 추출 규칙 및 프롬프트 정의
@@ -13,9 +14,9 @@ Ontology/
 ├── check_result.py         # 추출된 parquet 결과물(엔티티/관계) 확인용 스크립트
 ├── visualize_web.py        # PyVis 기반 인터랙티브 HTML 네트워크 그래프 생성
 ├── visualize_png.py        # NetworkX/Matplotlib 기반 정적 고화질 PNG 이미지 생성
-├── export_graphml.py      # Gephi / Neo4j 용 GraphML 포맷 데이터 수출 스크립트
+├── export_graphml.py       # Gephi / Neo4j 용 GraphML 포맷 데이터 수출 스크립트
 ├── settings.yaml           # GraphRAG 파이프라인 및 LLM 설정 파일
-└── README.md               # 프로젝트 매뉴얼
+└── README.md               # 프로젝트 매뉴얼 ```
 
 ---
 
@@ -27,26 +28,34 @@ Ontology/
 
 3. Visualization: PyVis, NetworkX, Matplotlib, Gephi (GraphML)
 
+PowerShell
+# uv 설치 (Windows PowerShell 기준)
 powershell -ExecutionPolicy ByPass -c "irm [https://astral.sh/uv/install.ps1](https://astral.sh/uv/install.ps1) | iex"
 
 
 🚀 실행 가이드 (Execution Workflow)
 
-1. GraphRAG 인덱싱 및 쿼리문서 기반 지식 그래프 인덱스를 생성하고 질의응답을 수행합니다.
+1. GraphRAG 인덱싱 및 쿼리
 
-# 로컬 질의 (Local Search: 특정 엔티티/관계 중심 탐색)
+문서 기반 지식 그래프 인덱스를 생성하고 질의응답을 수행합니다.
 
+- 로컬 질의 (Local Search: 특정 엔티티/관계 중심 탐색)
+
+Bash
 uvx --python 3.12 --with "litellm<1.92" graphrag query --root . --method local --query "주요 금융 기관 간의 연관 관계를 설명해줘."
 
-# 글로벌 질의 (Global Search: 전체 문맥 요약)
+- 글로벌 질의 (Global Search: 전체 문맥 요약)
 
+Bash
 uvx --python 3.12 --with "litellm<1.92" graphrag query --root . --method global --query "이 문서에서 다루는 주요 이슈를 요약해줘."
 
 2. 추출 데이터 결과 확인
 
 추출된 entities.parquet 및 relationships.parquet 데이터의 상위 항목을 터미널에서 빠르게 조회가 가능합니다.
 
+Bash
 uv run --with pandas --with pyarrow python check_result.py
+
 
 📊 시각화 (Visualization Guide)
 
