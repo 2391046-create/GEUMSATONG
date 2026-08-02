@@ -299,7 +299,8 @@ function runPrediction(companyName) {
 
     // execFile은 쉘을 거치지 않고 인자를 그대로 프로세스에 전달하므로,
     // companyName에 `;`, `$()`, 백틱 등이 섞여 있어도 명령어로 해석되지 않는다.
-    execFile("python", ["predict.py", companyName], options, (error, stdout, stderr) => {
+    const pythonCmd = process.platform === "win32" ? "python" : "python3";
+execFile(pythonCmd, ["predict.py", companyName], options, (error, stdout, stderr) => {
       if (stderr && stderr.trim()) {
         // predict.py는 실패 이유를 항상 stderr로 남긴다 (파일 없음, 기업명 매칭 실패 등).
         // stdout이 "null"이라 정상 흐름처럼 보여도, 원인 파악을 위해 항상 로그로 남긴다.
