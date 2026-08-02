@@ -2,6 +2,7 @@ require("dotenv").config();
 const express = require("express");
 const cors = require("cors");
 const axios = require("axios");
+const { execFile } = require("child_process"); // 🌟 AI 예측 실행을 위해 추가됨 (execFile: 쉘 인젝션 방지)
 
 const { extractArticle, buildArticleFromText } = require("./services/articleExtractor");
 const { analyzeArticle, recommendTopics } = require("./services/llm");
@@ -89,8 +90,8 @@ app.get("/api/auth/me", auth.requireAuth, (req, res) => {
 
 // ==================== 이 아래부터는 전부 로그인 필요 ====================
 app.use("/api", (req, res, next) => {
-  // 인증/공용(핫기사·DART) 라우트는 이미 위에서 처리됐거나 아래에서 별도 허용
-  const PUBLIC_PATHS = ["/api/trending", "/api/dart"];
+  // 인증/공용(핫기사·DART, 예측API 포함) 라우트는 이미 위에서 처리됐거나 아래에서 별도 허용
+  const PUBLIC_PATHS = ["/api/trending", "/api/dart", "/api/predictions/auto"];
   if (PUBLIC_PATHS.includes(req.path) || req.path.startsWith("/api/auth/")) return next();
   return auth.requireAuth(req, res, next);
 });
@@ -286,13 +287,78 @@ app.post("/api/read-text", async (req, res) => {
   }
 });
 
-// ---- DART 기업 정보 조회 (공개, 로그인 불필요) ----
+// ==================== 🌟 AI 예측 헬퍼 함수 ====================
+// predict.py를 실행하고 결과를 받아옵니다.
+function runPrediction(companyName) {
+  return new Promise((resolve) => {
+    // 🌟 Windows 환경에서 파이썬 이모지/한글 출력 에러(cp949) 방지
+    const options = {
+      env: { ...process.env, PYTHONIOENCODING: "utf-8" },
+      cwd: __dirname, // node를 어느 폴더에서 실행하든 predict.py를 항상 이 파일과 같은 폴더에서 찾도록 고정
+    };
+
+    // execFile은 쉘을 거치지 않고 인자를 그대로 프로세스에 전달하므로,
+    // companyName에 `;`, `$()`, 백틱 등이 섞여 있어도 명령어로 해석되지 않는다.
+    execFile("python", ["predict.py", companyName], options, (error, stdout, stderr) => {
+      if (stderr && stderr.trim()) {
+        // predict.py는 실패 이유를 항상 stderr로 남긴다 (파일 없음, 기업명 매칭 실패 등).
+        // stdout이 "null"이라 정상 흐름처럼 보여도, 원인 파악을 위해 항상 로그로 남긴다.
+        console.warn(`[Prediction] predict.py stderr (${companyName}):`, stderr.trim());
+      }
+      if (error) {
+        console.error("[Prediction] Python 실행 에러:", error.message);
+        return resolve(null);
+      }
+      try {
+        const result = JSON.parse(stdout);
+        resolve(result);
+      } catch (e) {
+        console.error("[Prediction] JSON 파싱 에러:", e.message, "stdout:", stdout);
+        resolve(null);
+      }
+    });
+  });
+}
+
+// ==================== 🌟 예측 API 라우터 ====================
+
+// ---- AI 실적 예측 API (기사 본문 상단용) ----
+app.get("/api/predictions/auto", async (req, res) => {
+  try {
+    const { companyName } = req.query;
+    if (!companyName) {
+      return res.status(400).json({ success: false, message: "companyName이 필요합니다." });
+    }
+
+    const prediction = await runPrediction(companyName);
+    
+    if (!prediction) {
+      return res.json({ success: false, message: "예측 데이터를 생성하지 못했습니다." });
+    }
+    
+    res.json({ success: true, data: prediction });
+  } catch (e) {
+    res.status(500).json({ success: false, message: e.message });
+  }
+});
+
+// ---- DART 기업 정보 조회 (모달창용) ----
 app.post("/api/dart", async (req, res) => {
   try {
     const { companyName } = req.body;
-    if (!companyName)
+    if (!companyName) {
       return res.status(400).json({ error: "companyName이 필요합니다." });
+    }
+
+    // 1. 기존 DART 정보 가져오기
     const report = await getCompanyReport(companyName);
+
+    // 2. 🌟 핵심 수정: 회사를 찾았다면 AI 예측 결과도 함께 합치기
+    if (report.found) {
+      const predictionData = await runPrediction(companyName);
+      report.prediction = predictionData || null; 
+    }
+
     res.json(report);
   } catch (e) {
     console.error(e);

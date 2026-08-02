@@ -5,5 +5,12 @@
     "passwordHash": "$2a$10$x2yltzkZR/KJft5Ynd0TgO6My4gJc/P7SkytMw6wRqrsPJsVKEAwG",
     "displayName": "imbank123",
     "createdAt": "2026-07-20T15:45:48.917Z"
+  },
+  {
+    "id": "6187760bb13d8bf5",
+    "username": "imbank1",
+    "passwordHash": "$2a$10$mfmyWTLXLMFsLShQ3092weH0GJkGHx85XnIcd8ms8BsNpkQT.qF6y",
+    "displayName": "imbank",
+    "createdAt": "2026-08-01T08:37:25.022Z"
   }
 ]

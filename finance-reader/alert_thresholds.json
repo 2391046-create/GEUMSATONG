@@ -1,0 +1,18 @@
+{
+  "model_name": "LightGBM",
+  "first_alert": {
+    "label": "1차 주의 경보",
+    "threshold": 0.08,
+    "precision": 0.083,
+    "recall": 0.805,
+    "f1": 0.151
+  },
+  "second_alert": {
+    "label": "2차 고위험 경보",
+    "threshold": 0.46,
+    "precision": 0.193,
+    "recall": 0.575,
+    "f1": 0.289,
+    "specificity": 0.844
+  }
+}

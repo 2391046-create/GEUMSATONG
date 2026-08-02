@@ -305,24 +305,87 @@ async function loadRecommendations(force = false) {
   state.recommendCache = { heroHTML: heroArea.innerHTML, secHTML: secArea.innerHTML };
   state.recommendCacheAt = Date.now();
 }
-$("#refresh-recommend").addEventListener("click", () => loadRecommendations(true));
+$("#refresh-recommend").addEventListener("click", () => {
+  if (isRecommending) return;
+  isRecommending = true;
+  const btn = $("#refresh-recommend");
+  if (btn) btn.disabled = true;
+  loadRecommendations(true).finally(() => {
+    isRecommending = false;
+    if (btn) btn.disabled = false;
+  });
+});
+
+// 상대 시간 표시 ("3시간 전" 등). pubDate가 없거나 파싱 실패하면 빈 문자열.
+function formatRelativeTime(pubDate) {
+  if (!pubDate) return "";
+  const d = new Date(pubDate);
+  if (isNaN(d.getTime())) return "";
+  const diffMs = Date.now() - d.getTime();
+  const min = Math.floor(diffMs / 60000);
+  if (min < 1) return "방금 전";
+  if (min < 60) return `${min}분 전`;
+  const hr = Math.floor(min / 60);
+  if (hr < 24) return `${hr}시간 전`;
+  const day = Math.floor(hr / 24);
+  if (day < 7) return `${day}일 전`;
+  return d.toLocaleDateString("ko-KR", { month: "short", day: "numeric" });
+}
+
+// 자주 나오는 언론사 도메인 → 이름 매핑 (press 필드가 비어있는 API 응답 보완용)
+const PRESS_DOMAIN_MAP = {
+  "hankyung.com": "한국경제", "edaily.co.kr": "이데일리", "chosun.com": "조선일보",
+  "weekly.chosun.com": "주간조선", "mbn.co.kr": "MBN", "mk.co.kr": "매일경제",
+  "munhwa.com": "문화일보", "yna.co.kr": "연합뉴스", "hani.co.kr": "한겨레",
+  "donga.com": "동아일보", "joongang.co.kr": "중앙일보", "sedaily.com": "서울경제",
+  "mt.co.kr": "머니투데이", "news1.kr": "뉴스1", "yonhapnews.co.kr": "연합뉴스",
+};
+function guessPress(a) {
+  if (a.press) return a.press;
+  try {
+    const host = new URL(a.url).hostname.replace(/^www\./, "").replace(/^m\./, "");
+    for (const domain in PRESS_DOMAIN_MAP) {
+      if (host === domain || host.endsWith("." + domain)) return PRESS_DOMAIN_MAP[domain];
+    }
+  } catch {}
+  return "";
+}
+
+// 썸네일이 있을 때만 이미지 블록을 만들고, 없으면 빈 문자열(= 이미지 영역 자체가 생기지 않음).
+function mediaBlock(a, mediaClass) {
+  if (!a.thumbnail) return "";
+  return `<div class="${mediaClass}">
+    <img class="news-thumb" src="${escapeAttr(a.thumbnail)}" alt="" loading="lazy"
+      onerror="this.parentElement.remove(); this.closest('a').classList.add('no-media');" />
+  </div>`;
+}
 
 // 오늘의 핫 뉴스 / 추천 기사는 용어 분석 없이, 눌렀을 때 실제 기사로 바로 이동한다.
 function renderHeroCard(r) {
   const a = r.article;
-  return `<a href="${escapeAttr(a.url)}" target="_blank" rel="noopener" class="hero-card">
-    <span class="hero-tag">${escapeHtml(r.category || "오늘의 추천")}</span>
-    <h3 class="hero-title">${escapeHtml(a.title)}</h3>
-    ${r.reason ? `<p class="hero-desc">${escapeHtml(r.reason)}</p>` : ""}
-    <span class="hero-meta">${escapeHtml(a.press || "")}</span>
+  const meta = [guessPress(a), formatRelativeTime(a.pubDate)].filter(Boolean).join(" · ");
+  const noMediaClass = a.thumbnail ? "" : " no-media";
+  return `<a href="${escapeAttr(a.url)}" target="_blank" rel="noopener" class="hero-card${noMediaClass}">
+    ${mediaBlock(a, "hero-media")}
+    <div class="hero-body">
+      <span class="hero-tag">${escapeHtml(r.category || "오늘의 추천")}</span>
+      <h3 class="hero-title">${escapeHtml(a.title)}</h3>
+      ${r.reason ? `<p class="hero-desc">${escapeHtml(r.reason)}</p>` : a.description ? `<p class="hero-desc">${escapeHtml(a.description.slice(0, 90))}</p>` : ""}
+      ${meta ? `<span class="hero-meta">${escapeHtml(meta)}</span>` : ""}
+    </div>
   </a>`;
 }
 function renderSecondaryCard(r) {
   const a = r.article;
-  return `<a href="${escapeAttr(a.url)}" target="_blank" rel="noopener" class="secondary-card">
-    <span class="card-tag">${escapeHtml(r.category || "기타")}</span>
-    <span class="card-title">${escapeHtml(a.title)}</span>
-    <span class="card-tags-row"><span>${escapeHtml(r.category || "기타")}</span></span>
+  const meta = [guessPress(a), formatRelativeTime(a.pubDate)].filter(Boolean).join(" · ");
+  const noMediaClass = a.thumbnail ? "" : " no-media";
+  return `<a href="${escapeAttr(a.url)}" target="_blank" rel="noopener" class="secondary-card${noMediaClass}">
+    ${mediaBlock(a, "secondary-media")}
+    <div class="secondary-body">
+      <span class="card-tag">${escapeHtml(r.category || "기타")}</span>
+      <span class="card-title">${escapeHtml(a.title)}</span>
+      ${meta ? `<span class="card-meta">${escapeHtml(meta)}</span>` : ""}
+    </div>
   </a>`;
 }
 function bindNewsCardClicks(container) {
@@ -376,10 +439,18 @@ function renderLiteracyPanel(data) {
 // ---- URL 입력 / 본문 붙여넣기 ----
 $("#toggle-paste").addEventListener("click", () => { $("#paste-box").hidden = !$("#paste-box").hidden; });
 
+// 중복 클릭/제출 방지 플래그 (버튼을 연타하거나 응답이 늦게 오는 동안 다시 눌러도 요청이 두 번 나가지 않도록)
+let isProcessingAnalysis = false;
+let isRecommending = false;
+
 $("#url-form").addEventListener("submit", async (e) => {
   e.preventDefault();
+  if (isProcessingAnalysis) return;
   const url = $("#url-input").value.trim();
   if (!url) return;
+  isProcessingAnalysis = true;
+  const submitBtn = $("#url-form").querySelector("button[type='submit']");
+  if (submitBtn) submitBtn.disabled = true;
   $("#url-hint").textContent = "";
   showLoading("기사를 불러오고 난이도에 맞춰 분석하는 중…");
   try {
@@ -394,13 +465,18 @@ $("#url-form").addEventListener("submit", async (e) => {
   } catch (err) {
     $("#url-hint").textContent = `불러오지 못했어요: ${err.message}`;
   } finally {
+    isProcessingAnalysis = false;
+    if (submitBtn) submitBtn.disabled = false;
     hideLoading();
   }
 });
 
 $("#paste-submit").addEventListener("click", async () => {
+  if (isProcessingAnalysis) return;
   const text = $("#paste-textarea").value.trim();
   if (text.length < 30) { $("#url-hint").textContent = "본문을 조금 더 붙여넣어 주세요."; return; }
+  isProcessingAnalysis = true;
+  $("#paste-submit").disabled = true;
   $("#url-hint").textContent = "";
   showLoading("붙여넣은 본문을 난이도에 맞춰 분석하는 중…");
   try {
@@ -415,6 +491,8 @@ $("#paste-submit").addEventListener("click", async () => {
   } catch (err) {
     $("#url-hint").textContent = `분석하지 못했어요: ${err.message}`;
   } finally {
+    isProcessingAnalysis = false;
+    $("#paste-submit").disabled = false;
     hideLoading();
   }
 });
@@ -661,6 +739,7 @@ function renderArticle(data) {
 
   const container = $("#article-text");
   container.innerHTML = "";
+
   const usedTerms = new Set();
   const paras = article.paragraphs?.length ? article.paragraphs : [article.text];
   paras.forEach((para) => {
@@ -675,10 +754,15 @@ function renderArticle(data) {
 
   const dartWrap = $("#dart-buttons");
   if (state.currentCompanies.length) {
-    dartWrap.innerHTML = state.currentCompanies
+    const dartBtns = state.currentCompanies
       .map((c) => `<button class="dart-btn" data-company="${escapeAttr(c)}">🏛 ${escapeHtml(c)} DART</button>`)
       .join("");
+    const predictBtns = state.currentCompanies
+      .map((c) => `<button class="predict-btn" data-company="${escapeAttr(c)}">🤖 ${escapeHtml(c)} 위험률 예측</button>`)
+      .join("");
+    dartWrap.innerHTML = dartBtns + predictBtns;
     dartWrap.querySelectorAll(".dart-btn").forEach((b) => b.addEventListener("click", () => openDartFor(b.dataset.company)));
+    dartWrap.querySelectorAll(".predict-btn").forEach((b) => b.addEventListener("click", () => openPredictionFor(b.dataset.company)));
   } else {
     dartWrap.innerHTML = `<span class="dart-empty">기사에서 특정 기업명을 찾지 못했어요.</span>`;
   }
@@ -966,12 +1050,30 @@ function renderDartNotFound(companyName) {
     if (v) openDartFor(v);
   });
 }
+
+// ==================== AI 위험률 예측 (DART와 별도 버튼/모달) ====================
+async function openPredictionFor(companyName) {
+  openModal(`위험률 예측 · ${companyName}`);
+  $("#modal-body").innerHTML = renderPredictionSkeleton();
+  try {
+    const predictionData = await fetchJSON(`/api/predictions/auto?companyName=${encodeURIComponent(companyName)}`, {}, 75000);
+    if (!predictionData || !predictionData.success || !predictionData.data) {
+      $("#modal-body").innerHTML = `<p>"${escapeHtml(companyName)}"에 대한 위험률 예측 데이터를 찾지 못했어요.</p>`;
+      return;
+    }
+    $("#modal-body").innerHTML = renderPredictionSection(predictionData.data);
+  } catch (e) {
+    $("#modal-body").innerHTML = `<p>불러오지 못했어요: ${escapeHtml(e.message)}</p>`;
+  }
+}
+
 function renderDartModal(data) {
   $("#modal-body").innerHTML = `
     <div class="dart-summary">
       <div class="dart-stat"><div class="k">종목코드</div><div class="v">${data.stockCode || "비상장"}</div></div>
       <div class="dart-stat"><div class="k">기준 사업연도</div><div class="v">${data.reportYear || "-"}</div></div>
     </div>
+
     <div id="dart-chart"></div>
     <h3 style="font-size:15px; margin-top:28px;">최근 3개월 공시</h3>
     <ul class="disclosure-list" id="dart-disclosures"></ul>
@@ -982,6 +1084,7 @@ function renderDartModal(data) {
     : `<li class="static">최근 공시 내역이 없어요.</li>`;
   $("#dart-chart").innerHTML = renderDartBarChart(data.chartData, data.reportYear);
 }
+
 function renderDartBarChart(chartData, reportYear) {
   const hasAny = chartData.some((c) => c.thisYear != null || c.prevYear != null);
   if (!hasAny) return `<p class="panel-sub">이 기업의 재무제표 수치를 찾지 못했어요.</p>`;
@@ -1003,6 +1106,115 @@ function renderDartBarChart(chartData, reportYear) {
   });
   svg += `</svg>`;
   return `<div class="dart-chart-legend"><span><i style="background:#1B2044"></i>${reportYear || "당기"}년</span><span><i style="background:#E8A33D"></i>전년</span></div>${svg}`;
+}
+
+// ==================== 예측 섹션 공통 헬퍼 ====================
+
+// 데이터 수신 전 보여줄 로딩(스켈레톤) UI
+function renderPredictionSkeleton() {
+  return `
+    <div class="prediction-card skeleton-card">
+      <div class="prediction-header">
+        <span class="prediction-badge pulse">🤖 AI 재무 위험 분석 중…</span>
+      </div>
+      <div class="prediction-body">
+        <div class="pred-gauge-wrap">
+          <div class="pred-gauge-skel"></div>
+        </div>
+        <div class="pred-factors">
+          <div class="skeleton-line" style="width: 90%;"></div>
+          <div class="skeleton-line" style="width: 75%;"></div>
+          <div class="skeleton-line" style="width: 82%;"></div>
+        </div>
+      </div>
+    </div>
+  `;
+}
+
+// 예측 결과(다음 분기 재무 위험 확률)를 투트랙(Two-Track) 이중 임계값 경보 게이지로 시각화
+// pred 형태: { companyName, quarterLabel, probability(0~100), riskLevel('low'|'mid'|'high'),
+//              riskLabel, alertTrack(null|'first'|'second'|'confirmed'),
+//              firstThreshold(0~100), secondThreshold(0~100),
+//              trend('up'|'down'|'flat'), factors:[{label,value,direction}], summary }
+function renderPredictionSection(pred) {
+  const prob = Math.max(0, Math.min(100, Number(pred.probability ?? 0)));
+  const level = pred.riskLevel || "low";
+  const firstTh = Math.max(0, Math.min(100, Number(pred.firstThreshold ?? 8)));
+  const secondTh = Math.max(firstTh, Math.min(100, Number(pred.secondThreshold ?? 46)));
+
+  const trendIcon = pred.trend === "up" ? "▲" : pred.trend === "down" ? "▼" : "–";
+  const trendClass = pred.trend === "up" ? "trend-up" : pred.trend === "down" ? "trend-down" : "trend-flat";
+  const trendText = pred.trend === "up" ? "직전 분기보다 위험 상승" : pred.trend === "down" ? "직전 분기보다 위험 하락" : "직전 분기와 유사";
+
+  // 게이지 배경을 3개 구간(안전/1차 주의/2차 고위험)으로 나눠 그린다.
+  // 원 둘레가 정확히 100 단위가 되도록 만든 path라 dasharray/offset을 %값 그대로 쓸 수 있다.
+  const GAUGE_PATH = "M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831";
+  const safeLen = firstTh;
+  const watchLen = Math.max(0, secondTh - firstTh);
+  const dangerLen = Math.max(0, 100 - secondTh);
+
+  // 현재 확률 위치에 점(마커)을 찍기 위한 각도 계산 (12시 방향이 0%, 시계 방향으로 진행)
+  const angleRad = (prob / 100) * 2 * Math.PI;
+  const markerX = (18 + 15.9155 * Math.sin(angleRad)).toFixed(2);
+  const markerY = (18 - 15.9155 * Math.cos(angleRad)).toFixed(2);
+
+  // 경보 트랙별 배지/설명
+  const trackMeta = {
+    first: { icon: "🔔", cls: "alert-first", desc: "위험 신호를 폭넓게 감지하는 1차 경보예요. 아직 확정은 아니지만 놓치지 않는 데 초점을 맞췄어요." },
+    second: { icon: "🚨", cls: "alert-second", desc: "여러 지표가 함께 나쁘게 나타난, 신뢰도 높은 2차 경보예요. 특별히 주의 깊게 살펴보세요." },
+    confirmed: { icon: "🛑", cls: "alert-second", desc: "AI 예측이 아니라, 현재 공시 수치 자체가 이미 위험 기준을 충족한 확정 판정이에요." },
+  }[pred.alertTrack] || { icon: "✅", cls: "alert-none", desc: "현재 특별한 위험 신호가 감지되지 않았어요." };
+
+  const factorsHtml = (pred.factors || [])
+    .map((f) => {
+      const dir = f.direction === "up" ? "▲" : f.direction === "down" ? "▼" : "–";
+      return `<div class="pred-factor-row">
+        <span class="pred-factor-label">${escapeHtml(f.label)}</span>
+        <span class="pred-factor-value">${dir} ${escapeHtml(f.value)}</span>
+      </div>`;
+    })
+    .join("");
+
+  return `
+    <div class="prediction-card risk-${escapeAttr(level)}">
+      <div class="prediction-header">
+        <span class="prediction-badge">🤖 AI 재무 위험 예측</span>
+        <span class="prediction-quarter">${escapeHtml(pred.quarterLabel || "")}</span>
+      </div>
+
+      <div class="alert-track-badge ${trackMeta.cls}">
+        <span class="alert-track-icon">${trackMeta.icon}</span>
+        <span class="alert-track-label">${escapeHtml(pred.riskLabel || "-")}</span>
+      </div>
+      <p class="alert-track-desc">${trackMeta.desc}</p>
+
+      <div class="prediction-body">
+        <div class="pred-gauge-wrap">
+          <svg viewBox="0 0 36 36" class="circular-chart two-track">
+            <path class="gauge-seg-safe" stroke-dasharray="${safeLen}, ${100 - safeLen}" d="${GAUGE_PATH}" />
+            <path class="gauge-seg-watch" stroke-dasharray="${watchLen}, ${100 - watchLen}" stroke-dashoffset="${-safeLen}" d="${GAUGE_PATH}" />
+            <path class="gauge-seg-danger" stroke-dasharray="${dangerLen}, ${100 - dangerLen}" stroke-dashoffset="${-secondTh}" d="${GAUGE_PATH}" />
+            <circle class="gauge-marker" cx="${markerX}" cy="${markerY}" r="2.6" />
+            <text x="18" y="20.35" class="percentage">${prob.toFixed(1)}%</text>
+          </svg>
+          <div class="pred-gauge-caption">
+            <span class="pred-trend ${trendClass}">${trendIcon} ${trendText}</span>
+          </div>
+          <div class="pred-legend">
+            <span class="legend-item"><i class="legend-dot legend-safe"></i>안전 0~${firstTh.toFixed(0)}%</span>
+            <span class="legend-item"><i class="legend-dot legend-watch"></i>1차 주의 ${firstTh.toFixed(0)}~${secondTh.toFixed(0)}%</span>
+            <span class="legend-item"><i class="legend-dot legend-danger"></i>2차 고위험 ${secondTh.toFixed(0)}%~</span>
+          </div>
+        </div>
+        <div class="pred-factors">
+          <p class="pred-factors-title">주요 판단 근거</p>
+          ${factorsHtml || `<p class="pred-empty">참고할 세부 지표가 부족해요.</p>`}
+        </div>
+      </div>
+      ${pred.summary ? `<p class="prediction-desc">${escapeHtml(pred.summary)}</p>` : ""}
+      <p class="prediction-disclaimer">이 예측은 공시 재무지표와 뉴스 어조를 학습한 통계 모델의 참고용 추정치이며, 투자 판단의 근거로 사용할 수 없어요.</p>
+    </div>
+  `;
 }
 
 // ==================== 초기화 ====================
