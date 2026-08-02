@@ -1,4 +1,4 @@
-FROM node:18-slim
+FROM node:20-slim
 
 # Python 3 및 pip 설치
 RUN apt-get update && apt-get install -y \
