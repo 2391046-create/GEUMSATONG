@@ -37,6 +37,6 @@ data/
 docs_cache/
 
 # ---- 대용량 모델 및 데이터셋 (GitHub 업로드 방지) ----
-*.pkl
-*.csv
+#*.pkl
+#*.csv
 naver-debug.html
