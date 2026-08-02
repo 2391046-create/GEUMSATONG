@@ -98,6 +98,8 @@ GROQ_API_KEY=gsk_...
 GROQ_MODEL=llama-3.3-70b-versatile
 DART_API_KEY=발급받은키
 PORT=3000
+NAVER_API_KEY_ID=
+NAVER_API_KEY=
 ```
 
 서버 실행:
