@@ -5,7 +5,7 @@ RUN apt-get update && apt-get install -y \
     python3 \
     python3-pip \
     && rm -rf /var/lib/apt/lists/*
-
+RUN ln -sf /usr/bin/python3 /usr/bin/python
 WORKDIR /app
 
 # Node.js 패키지 설치
