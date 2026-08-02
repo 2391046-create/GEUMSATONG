@@ -3,16 +3,16 @@
   "first_alert": {
     "label": "1차 주의 경보",
     "threshold": 0.08,
-    "precision": 0.083,
-    "recall": 0.805,
-    "f1": 0.151
+    "precision": 0.0832,
+    "recall": 0.8046,
+    "f1": 0.1509
   },
   "second_alert": {
     "label": "2차 고위험 경보",
     "threshold": 0.46,
-    "precision": 0.193,
-    "recall": 0.575,
+    "precision": 0.1931,
+    "recall": 0.5747,
     "f1": 0.289,
-    "specificity": 0.844
+    "specificity": 0.8438
   }
 }
