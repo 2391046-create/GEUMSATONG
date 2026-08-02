@@ -79,9 +79,10 @@ finance-reader/
   3. `gsk_`로 시작하는 키 복사
   - 무료 한도: 분당 30회, 일 1,000회 정도 (모델별로 다름). 개인 프로젝트로 충분하고, 초과하면 잠깐 대기 후 자동 리셋됩니다.
 - **DART Open API 키 (무료)** — https://opendart.fss.or.kr 에서 발급 (기업 재무/공시 조회, AI 위험 예측 모델 학습 데이터 수집에 사용). 발급 안 해도 나머지 기능(용어 설명, 흐름도, 추천, 핫기사)은 정상 작동하고, DART·위험률 예측 버튼만 비활성화됩니다.
-- **네이버 Open API Client ID & Client Secret (무료)** — https://developers.naver.com 에서 발급 (맞춤형 AI 기사 추천 및 핫뉴스 기사 수집에 사용)
-  1. 애플리케이션 등록 후 검색(Search) API 선택
-  2. 발급받은 Client ID 및 Client Secret을 환경변수에 등록 (NAVER_CLIENT_ID, NAVER_CLIENT_SECRET)
+- **네이버 Open API HUB Client ID & Client Secret (무료)** — NAVER API HUB 에서 발급 (맞춤형 AI 기사 추천 및 핫뉴스 기사 수집에 사용)
+  1. Application 등록 후 NAVER 검색 → 뉴스 API 상품 추가
+  2. 무료 한도: 일 25,000회 (월 최대 775,000회 제공)
+  3. 인증 정보의 Client ID 및 Client Secret을 환경변수에 등록 (NAVER_API_KEY_ID, NAVER_API_KEY)
 - **(선택) Python 3.10+** — `best_risk_model.pkl`을 새로 학습시키고 싶을 때만 필요합니다. 서비스를 그냥 실행만 할 거라면(모델 파일이 이미 저장소에 있다면) 설치 안 해도 됩니다. `predict.py`는 매 예측 요청마다 Python을 실행하므로, **서비스를 실제로 배포/운영하려면 Python 3는 필수**입니다.
 
 > ⚠️ `DART_API_KEY`는 두 군데에서 쓰입니다 — 서비스 실행 중 DART 모달 조회(`services/dart.js`)와, `ml_pipeline/dart_prep.py`로 학습 데이터를 새로 수집할 때. `predict.py`(실시간 위험률 예측)는 이미 학습된 `final_dataset.csv`/`best_risk_model.pkl`만 읽으므로 예측 자체에는 DART API를 호출하지 않습니다.
