@@ -76,12 +76,12 @@ powershell -ExecutionPolicy ByPass -c "irm [https://astral.sh/uv/install.ps1](ht
 
 - **로컬 질의 (Local Search: 특정 엔티티/관계 중심 탐색)**
 ```
-uvx --python 3.12 --with "litellm<1.92" graphrag query --root . --method local --query "주요 금융 기관 간의 연관 관계를 설명해줘."
+uvx --python 3.12 --with "litellm<1.92" graphrag query --root . --method local "주요 금융 기관 간의 연관 관계를 설명해줘."
 ```
 
 - **글로벌 질의 (Global Search: 전체 문맥 요약)**
 ```
-uvx --python 3.12 --with "litellm<1.92" graphrag query --root . --method global --query "이 문서에서 다루는 주요 이슈를 요약해줘."
+uvx --python 3.12 --with "litellm<1.92" graphrag query --root . --method global "이 문서에서 다루는 주요 이슈를 요약해줘."
 ```
 
 ### **2. 추출 데이터 결과 확인**
